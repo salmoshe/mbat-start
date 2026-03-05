@@ -324,8 +324,8 @@ describe('Task 4 — Task row CSS styles', () => {
 
   it('uses only CSS custom properties for colors (no hardcoded colors in task rows)', () => {
     const taskRowSection = css.substring(css.indexOf('.task-row'));
-    const footerIdx = taskRowSection.indexOf('Footer');
-    const taskRowCSS = taskRowSection.substring(0, footerIdx);
+    const nextSectionIdx = taskRowSection.indexOf('/* ====', 1);
+    const taskRowCSS = taskRowSection.substring(0, nextSectionIdx);
     // Check that color values use var() not hex codes (except in var definitions)
     const colorLines = taskRowCSS.split('\n').filter(l => /color:/.test(l) && !l.includes('/*'));
     for (const line of colorLines) {

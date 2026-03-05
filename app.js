@@ -80,6 +80,56 @@ function renderFixedTasks(data) {
   });
 }
 
+function renderWeeklySchedule(data) {
+  const sectionEl = document.querySelector('[aria-labelledby="weekly-title"]');
+  if (!sectionEl || !data.weeklySchedule) return;
+
+  const ws = data.weeklySchedule;
+  const dayAbbrev = { 'ראשון': 'א׳', 'שני': 'ב׳', 'שלישי': 'ג׳', 'רביעי': 'ד׳', 'חמישי': 'ה׳' };
+
+  const tableEl = document.createElement('table');
+  tableEl.className = 'schedule-table';
+
+  const theadEl = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  const cornerTh = document.createElement('th');
+  headerRow.appendChild(cornerTh);
+
+  ws.days.forEach((day, index) => {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    th.setAttribute('data-day', index);
+    th.textContent = dayAbbrev[day] || day;
+    headerRow.appendChild(th);
+  });
+  theadEl.appendChild(headerRow);
+  tableEl.appendChild(theadEl);
+
+  const tbodyEl = document.createElement('tbody');
+  ws.rotations.forEach(rotation => {
+    const tr = document.createElement('tr');
+
+    const labelTh = document.createElement('th');
+    labelTh.scope = 'row';
+    labelTh.className = 'rotation-label';
+    labelTh.textContent = rotation.label;
+    tr.appendChild(labelTh);
+
+    rotation.assignments.forEach((member, dayIndex) => {
+      const td = document.createElement('td');
+      td.setAttribute('data-member', member);
+      td.setAttribute('data-day', dayIndex);
+      td.textContent = member;
+      tr.appendChild(td);
+    });
+
+    tbodyEl.appendChild(tr);
+  });
+  tableEl.appendChild(tbodyEl);
+
+  sectionEl.appendChild(tableEl);
+}
+
 // ==============================
 // 4. STATE MANAGEMENT
 // ==============================
@@ -109,4 +159,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   renderFixedTasks(data);
+  renderWeeklySchedule(data);
 });
