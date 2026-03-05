@@ -23,6 +23,20 @@ async function loadData() {
 // ==============================
 // 3. RENDERING
 // ==============================
+function renderNameSelector(data) {
+  const nameSelectorEl = document.querySelector('.name-selector');
+  if (!nameSelectorEl || !data.familyMembers) return;
+
+  data.familyMembers.forEach(member => {
+    const chipEl = document.createElement('button');
+    chipEl.classList.add('name-chip');
+    chipEl.setAttribute('aria-pressed', 'false');
+    chipEl.setAttribute('data-member', member.name);
+    chipEl.textContent = member.emoji + ' ' + member.name;
+    nameSelectorEl.appendChild(chipEl);
+  });
+}
+
 function renderFixedTasks(data) {
   const sectionEl = document.querySelector('[aria-labelledby="fixed-tasks-title"]');
   if (!sectionEl || !data.fixedTasks) return;
@@ -133,6 +147,60 @@ function renderWeeklySchedule(data) {
 // ==============================
 // 4. STATE MANAGEMENT
 // ==============================
+function handleNameClick(event) {
+  const chipEl = event.target.closest('.name-chip');
+  if (!chipEl) return;
+
+  const nameSelectorEl = document.querySelector('.name-selector');
+  const allChips = nameSelectorEl.querySelectorAll('.name-chip');
+  allChips.forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-pressed', 'false');
+  });
+
+  chipEl.classList.add('selected');
+  chipEl.setAttribute('aria-pressed', 'true');
+
+  const selectorPromptEl = document.querySelector('.selector-prompt');
+  if (selectorPromptEl) {
+    selectorPromptEl.classList.add('hidden');
+  }
+
+  try {
+    localStorage.setItem(STORAGE_KEY, chipEl.getAttribute('data-member'));
+  } catch (e) {
+    // Silent fail — localStorage unavailable
+  }
+}
+
+function restoreSavedMember() {
+  let savedName = null;
+  try {
+    savedName = localStorage.getItem(STORAGE_KEY);
+  } catch (e) {
+    // Silent fail — localStorage unavailable
+    return;
+  }
+
+  if (!savedName) return;
+
+  const allChips = document.querySelectorAll('.name-chip');
+  let chipEl = null;
+  allChips.forEach(c => {
+    if (c.getAttribute('data-member') === savedName) {
+      chipEl = c;
+    }
+  });
+  if (!chipEl) return;
+
+  chipEl.classList.add('selected');
+  chipEl.setAttribute('aria-pressed', 'true');
+
+  const selectorPromptEl = document.querySelector('.selector-prompt');
+  if (selectorPromptEl) {
+    selectorPromptEl.classList.add('hidden');
+  }
+}
 
 // ==============================
 // 5. HIGHLIGHTING
@@ -158,6 +226,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  renderNameSelector(data);
   renderFixedTasks(data);
   renderWeeklySchedule(data);
+
+  restoreSavedMember();
+
+  const nameSelectorEl = document.querySelector('.name-selector');
+  if (nameSelectorEl) {
+    nameSelectorEl.addEventListener('click', handleNameClick);
+  }
 });
