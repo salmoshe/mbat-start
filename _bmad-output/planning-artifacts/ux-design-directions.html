@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mbat-start — Design Directions</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #f5f5f5; color: #1a1a2e; direction: ltr; }
+
+  /* Navigation */
+  .nav { position: sticky; top: 0; z-index: 100; background: #1A4B8C; color: white; padding: 16px; text-align: center; }
+  .nav h1 { font-size: 20px; margin-bottom: 8px; }
+  .nav p { font-size: 13px; opacity: 0.8; margin-bottom: 12px; }
+  .nav-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .nav-buttons button { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  .nav-buttons button:hover, .nav-buttons button.active { background: white; color: #1A4B8C; }
+
+  /* Direction container */
+  .direction { display: none; padding: 16px; max-width: 420px; margin: 0 auto; }
+  .direction.active { display: block; }
+  .direction-label { background: #1A4B8C; color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 16px; text-align: center; }
+  .direction-label h2 { font-size: 16px; margin-bottom: 4px; }
+  .direction-label p { font-size: 12px; opacity: 0.8; }
+
+  /* ========== DIRECTION A: Table-Forward Classic ========== */
+  .dir-a { direction: rtl; }
+  .dir-a .header { text-align: center; padding: 16px 0; }
+  .dir-a .header img { width: 80px; height: auto; }
+  .dir-a .header h1 { font-size: 20px; color: #1A4B8C; margin-top: 8px; }
+  .dir-a .name-selector { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 12px 0; }
+  .dir-a .name-btn { background: #F0F4F8; border: 2px solid #D0D8E0; padding: 10px 14px; border-radius: 8px; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+  .dir-a .name-btn.selected { background: #1A4B8C; color: white; border-color: #1A4B8C; }
+  .dir-a .section-title { font-size: 17px; font-weight: bold; color: #1A4B8C; margin: 20px 0 8px; border-bottom: 2px solid #1A4B8C; padding-bottom: 4px; }
+  .dir-a .fixed-table, .dir-a .weekly-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .dir-a .fixed-table td, .dir-a .weekly-table td, .dir-a .weekly-table th { padding: 8px 6px; border: 1px solid #D0D8E0; font-size: 14px; text-align: center; }
+  .dir-a .weekly-table th { background: #1A4B8C; color: white; font-size: 13px; }
+  .dir-a .weekly-table th.today { background: #0D3A6F; }
+  .dir-a .weekly-table td.today { background: #E3F0FF; }
+  .dir-a .highlight { background: #FFF3CD !important; font-weight: bold; border: 2px solid #E6C85A !important; }
+  .dir-a .motto { text-align: center; font-size: 14px; font-style: italic; color: #5A6A7A; padding: 16px 0; }
+
+  /* ========== DIRECTION B: Card-Based Modern ========== */
+  .dir-b { direction: rtl; }
+  .dir-b .header { text-align: center; padding: 16px 0; background: linear-gradient(135deg, #1A4B8C 0%, #2A6BBB 100%); border-radius: 16px; color: white; margin-bottom: 16px; }
+  .dir-b .header img { width: 64px; }
+  .dir-b .header h1 { font-size: 18px; margin-top: 8px; }
+  .dir-b .header .motto { font-size: 12px; opacity: 0.85; margin-top: 4px; font-style: italic; }
+  .dir-b .name-selector { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; padding: 0 0 16px; }
+  .dir-b .name-chip { background: white; border: 2px solid #E0E4E8; padding: 10px 16px; border-radius: 24px; font-size: 14px; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: all 0.2s; }
+  .dir-b .name-chip.selected { background: #1A4B8C; color: white; border-color: #1A4B8C; box-shadow: 0 2px 8px rgba(26,75,140,0.3); }
+  .dir-b .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .dir-b .card-title { font-size: 15px; font-weight: bold; color: #1A4B8C; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .dir-b .fixed-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border-radius: 8px; margin-bottom: 4px; font-size: 14px; }
+  .dir-b .fixed-item.highlight { background: #FFF3CD; border: 1px solid #E6C85A; font-weight: bold; }
+  .dir-b .mini-table { width: 100%; border-collapse: collapse; }
+  .dir-b .mini-table th { font-size: 12px; padding: 6px 4px; color: #5A6A7A; font-weight: 600; text-align: center; }
+  .dir-b .mini-table td { font-size: 13px; padding: 8px 4px; text-align: center; border-top: 1px solid #F0F0F0; }
+  .dir-b .mini-table td.today { background: #E3F0FF; border-radius: 6px; }
+  .dir-b .mini-table td.highlight { background: #FFF3CD; font-weight: bold; border-radius: 6px; }
+
+  /* ========== DIRECTION C: Compact Dashboard ========== */
+  .dir-c { direction: rtl; }
+  .dir-c .top-bar { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 2px solid #1A4B8C; margin-bottom: 12px; }
+  .dir-c .top-bar img { width: 40px; }
+  .dir-c .top-bar .title { font-size: 16px; font-weight: bold; color: #1A4B8C; flex: 1; }
+  .dir-c .name-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+  .dir-c .name-tag { background: #F0F4F8; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+  .dir-c .name-tag.selected { background: #1A4B8C; color: white; }
+  .dir-c .section-label { font-size: 13px; font-weight: bold; color: #1A4B8C; margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .dir-c .dense-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-bottom: 10px; }
+  .dir-c .dense-item { background: #F8F9FA; padding: 6px 8px; border-radius: 4px; font-size: 12px; display: flex; justify-content: space-between; }
+  .dir-c .dense-item.highlight { background: #FFF3CD; font-weight: bold; border: 1px solid #E6C85A; }
+  .dir-c .compact-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; }
+  .dir-c .compact-table th { padding: 4px 3px; background: #1A4B8C; color: white; font-size: 11px; text-align: center; }
+  .dir-c .compact-table td { padding: 5px 3px; border: 1px solid #E8E8E8; text-align: center; font-size: 12px; }
+  .dir-c .compact-table td.today { background: #E3F0FF; }
+  .dir-c .compact-table td.highlight { background: #FFF3CD; font-weight: bold; }
+  .dir-c .compact-table .row-label { text-align: right; font-weight: 600; background: #F8F9FA; font-size: 11px; }
+  .dir-c .motto { font-size: 11px; text-align: center; color: #8A9AAA; padding: 8px 0; font-style: italic; }
+
+  /* ========== DIRECTION D: Bold & Graphic ========== */
+  .dir-d { direction: rtl; }
+  .dir-d .hero { text-align: center; padding: 20px 0 12px; }
+  .dir-d .hero img { width: 100px; filter: drop-shadow(0 2px 8px rgba(26,75,140,0.3)); }
+  .dir-d .hero h1 { font-size: 22px; color: #1A4B8C; margin-top: 8px; letter-spacing: -0.5px; }
+  .dir-d .hero .motto { font-size: 13px; color: #5A6A7A; margin-top: 4px; }
+  .dir-d .name-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 0; }
+  .dir-d .name-block { background: white; border: 2px solid #E0E4E8; border-radius: 12px; padding: 12px 4px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .dir-d .name-block .emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+  .dir-d .name-block .name { font-size: 12px; font-weight: 600; }
+  .dir-d .name-block.selected { background: #1A4B8C; color: white; border-color: #1A4B8C; transform: scale(1.05); box-shadow: 0 4px 12px rgba(26,75,140,0.3); }
+  .dir-d .duty-section { margin-bottom: 16px; }
+  .dir-d .duty-header { font-size: 16px; font-weight: bold; color: #1A4B8C; padding: 8px 0; display: flex; align-items: center; gap: 8px; }
+  .dir-d .duty-strip { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; -webkit-overflow-scrolling: touch; }
+  .dir-d .duty-card { min-width: 100px; background: white; border-radius: 10px; padding: 10px; text-align: center; border: 2px solid #E8ECF0; flex-shrink: 0; }
+  .dir-d .duty-card .task-emoji { font-size: 28px; margin-bottom: 6px; }
+  .dir-d .duty-card .task-name { font-size: 11px; color: #5A6A7A; }
+  .dir-d .duty-card .task-owner { font-size: 13px; font-weight: bold; margin-top: 4px; }
+  .dir-d .duty-card.highlight { background: #FFF3CD; border-color: #E6C85A; }
+  .dir-d .schedule-block { background: white; border-radius: 12px; padding: 12px; margin-bottom: 8px; border: 1px solid #E8ECF0; }
+  .dir-d .schedule-block .label { font-size: 13px; font-weight: bold; color: #5A6A7A; margin-bottom: 8px; }
+  .dir-d .day-pills { display: flex; gap: 4px; }
+  .dir-d .day-pill { flex: 1; text-align: center; padding: 8px 2px; border-radius: 8px; background: #F8F9FA; font-size: 11px; }
+  .dir-d .day-pill .day-name { font-size: 10px; color: #8A9AAA; margin-bottom: 2px; }
+  .dir-d .day-pill .day-person { font-weight: 600; font-size: 12px; }
+  .dir-d .day-pill.today { background: #E3F0FF; }
+  .dir-d .day-pill.highlight { background: #FFF3CD; font-weight: bold; }
+
+  /* Comparison view */
+  .comparison { display: none; padding: 16px; }
+  .comparison.active { display: block; }
+  .comparison h2 { text-align: center; margin-bottom: 16px; font-size: 18px; color: #1A4B8C; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 900px; margin: 0 auto; }
+  .compare-item { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .compare-item h3 { background: #1A4B8C; color: white; padding: 10px; font-size: 14px; text-align: center; }
+  .compare-item .traits { padding: 12px; }
+  .compare-item .trait { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #F0F0F0; font-size: 13px; }
+  .compare-item .trait:last-child { border-bottom: none; }
+  .compare-item .trait .label { color: #5A6A7A; }
+  .compare-item .trait .value { font-weight: 600; }
+
+  /* Lion placeholder */
+  .lion-placeholder { width: 80px; height: 60px; background: #1A4B8C; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 28px; }
+  .lion-sm { width: 40px; height: 30px; font-size: 18px; border-radius: 4px; }
+  .lion-lg { width: 100px; height: 75px; font-size: 36px; border-radius: 10px; }
+
+  @media (max-width: 500px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .dir-d .name-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <h1>mbat-start — Design Directions</h1>
+  <p>Explore 4 visual approaches for the family duty board. Click to compare.</p>
+  <div class="nav-buttons">
+    <button onclick="showDir('a')" class="active">A: Table Classic</button>
+    <button onclick="showDir('b')">B: Card Modern</button>
+    <button onclick="showDir('c')">C: Compact</button>
+    <button onclick="showDir('d')">D: Bold Graphic</button>
+    <button onclick="showDir('compare')">Compare All</button>
+  </div>
+</div>
+
+<!-- DIRECTION A: Table-Forward Classic -->
+<div class="direction dir-a active" id="dir-a">
+  <div class="direction-label">
+    <h2>Direction A: Table-Forward Classic</h2>
+    <p>Mirrors the paper chart directly. Traditional table layout. Familiar and scannable.</p>
+  </div>
+
+  <div class="header">
+    <div class="lion-placeholder">🦁</div>
+    <h1>שאגת הארי</h1>
+  </div>
+
+  <div class="name-selector">
+    <button class="name-btn">👨 אבא</button>
+    <button class="name-btn">👩 אמא</button>
+    <button class="name-btn">💧 מעיין</button>
+    <button class="name-btn">⚡ חי</button>
+    <button class="name-btn selected">🦁 ארז</button>
+    <button class="name-btn">🌳 אלון</button>
+    <button class="name-btn">🎶 עדי</button>
+    <button class="name-btn">👵 סבתא</button>
+  </div>
+
+  <div class="section-title">📋 משימות קבועות</div>
+  <table class="fixed-table">
+    <tr><td>🍽️ הכנסת מדיח</td><td>👨 אבא</td></tr>
+    <tr class="highlight"><td>🍽️ פריקת מדיח</td><td>🦁 ארז</td></tr>
+    <tr><td>🗑️ פחים</td><td>🌳 אלון</td></tr>
+    <tr><td>👕 כביסות</td><td>💧 מעיין</td></tr>
+    <tr><td>🚗 סידורים + נסיעות</td><td>⚡ חי</td></tr>
+    <tr><td>🎭 הווי ובידור</td><td>🎶 עדי</td></tr>
+    <tr><td>🧹 נקיונות לפסח</td><td>👩 אמא + 👵 סבתא</td></tr>
+  </table>
+
+  <div class="section-title">📅 לוח שבועי</div>
+  <table class="weekly-table">
+    <tr><th></th><th>ראשון</th><th>שני</th><th class="today">שלישי</th><th>רביעי</th><th>חמישי</th></tr>
+    <tr><td><strong>צהריים</strong></td><td>👵 סבתא</td><td class="highlight">🦁 ארז</td><td class="today">—</td><td>⚡ חי</td><td>💧 מעיין</td></tr>
+    <tr><td><strong>ערב</strong></td><td>👩 אמא</td><td>👩 אמא</td><td class="today">👩 אמא</td><td>👩 אמא</td><td>👩 אמא</td></tr>
+    <tr><td><strong>עוזר לאמא</strong></td><td>🌳 אלון</td><td>💧 מעיין</td><td class="today">👨 אבא</td><td class="highlight">🦁 ארז</td><td>⚡ חי</td></tr>
+    <tr><td><strong>סדר + שולחן</strong></td><td class="highlight">🦁 ארז</td><td>🌳 אלון</td><td class="today">💧 מעיין</td><td>🌳 אלון</td><td class="highlight">🦁 ארז</td></tr>
+  </table>
+
+  <div class="motto">בואו נשאג ביחד על המשימות! כל אחד תורם 🦁</div>
+</div>
+
+<!-- DIRECTION B: Card-Based Modern -->
+<div class="direction dir-b" id="dir-b">
+  <div class="direction-label">
+    <h2>Direction B: Card-Based Modern</h2>
+    <p>Each section in a card. Clean, airy, modern feel. Great whitespace.</p>
+  </div>
+
+  <div class="header">
+    <div class="lion-placeholder">🦁</div>
+    <h1>שאגת הארי</h1>
+    <div class="motto">בואו נשאג ביחד על המשימות! כל אחד תורם</div>
+  </div>
+
+  <div class="name-selector">
+    <span class="name-chip">👨 אבא</span>
+    <span class="name-chip">👩 אמא</span>
+    <span class="name-chip">💧 מעיין</span>
+    <span class="name-chip">⚡ חי</span>
+    <span class="name-chip selected">🦁 ארז</span>
+    <span class="name-chip">🌳 אלון</span>
+    <span class="name-chip">🎶 עדי</span>
+    <span class="name-chip">👵 סבתא</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 משימות קבועות</div>
+    <div class="fixed-item">🍽️ הכנסת מדיח <span>👨 אבא</span></div>
+    <div class="fixed-item highlight">🍽️ פריקת מדיח <span>🦁 ארז</span></div>
+    <div class="fixed-item">🗑️ פחים <span>🌳 אלון</span></div>
+    <div class="fixed-item">👕 כביסות <span>💧 מעיין</span></div>
+    <div class="fixed-item">🚗 סידורים + נסיעות <span>⚡ חי</span></div>
+    <div class="fixed-item">🎭 הווי ובידור <span>🎶 עדי</span></div>
+    <div class="fixed-item">🧹 נקיונות לפסח <span>👩 אמא + 👵 סבתא</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🍽️ ארוחת צהריים</div>
+    <table class="mini-table">
+      <tr><th>ראשון</th><th>שני</th><th>שלישי</th><th>רביעי</th><th>חמישי</th></tr>
+      <tr><td>👵 סבתא</td><td class="highlight">🦁 ארז</td><td class="today">—</td><td>⚡ חי</td><td>💧 מעיין</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👩 ארוחת ערב (אמא כל ערב)</div>
+    <table class="mini-table">
+      <tr><th>ראשון</th><th>שני</th><th>שלישי</th><th>רביעי</th><th>חמישי</th></tr>
+      <tr><td>👩 אמא</td><td>👩 אמא</td><td class="today">👩 אמא</td><td>👩 אמא</td><td>👩 אמא</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🤝 עוזר לאמא בארוחת ערב</div>
+    <table class="mini-table">
+      <tr><th>ראשון</th><th>שני</th><th>שלישי</th><th>רביעי</th><th>חמישי</th></tr>
+      <tr><td>🌳 אלון</td><td>💧 מעיין</td><td class="today">👨 אבא</td><td class="highlight">🦁 ארז</td><td>⚡ חי</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🧹 סדר קומת כניסה + אמבטיות + עריכת שולחן</div>
+    <table class="mini-table">
+      <tr><th>ראשון</th><th>שני</th><th>שלישי</th><th>רביעי</th><th>חמישי</th></tr>
+      <tr><td class="highlight">🦁 ארז</td><td>🌳 אלון</td><td class="today">💧 מעיין</td><td>🌳 אלון</td><td class="highlight">🦁 ארז</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DIRECTION C: Compact Dashboard -->
+<div class="direction dir-c" id="dir-c">
+  <div class="direction-label">
+    <h2>Direction C: Compact Dashboard</h2>
+    <p>Maximum information density. Everything visible with minimal scrolling. Data-first.</p>
+  </div>
+
+  <div class="top-bar">
+    <div class="lion-placeholder lion-sm">🦁</div>
+    <div class="title">שאגת הארי</div>
+  </div>
+
+  <div class="name-row">
+    <span class="name-tag">👨 אבא</span>
+    <span class="name-tag">👩 אמא</span>
+    <span class="name-tag">💧 מעיין</span>
+    <span class="name-tag">⚡ חי</span>
+    <span class="name-tag selected">🦁 ארז</span>
+    <span class="name-tag">🌳 אלון</span>
+    <span class="name-tag">🎶 עדי</span>
+    <span class="name-tag">👵 סבתא</span>
+  </div>
+
+  <div class="section-label">משימות קבועות</div>
+  <div class="dense-grid">
+    <div class="dense-item">🍽️ הכנסת מדיח <span>אבא</span></div>
+    <div class="dense-item highlight">🍽️ פריקת מדיח <span>ארז</span></div>
+    <div class="dense-item">🗑️ פחים <span>אלון</span></div>
+    <div class="dense-item">👕 כביסות <span>מעיין</span></div>
+    <div class="dense-item">🚗 סידורים <span>חי</span></div>
+    <div class="dense-item">🎭 הווי ובידור <span>עדי</span></div>
+    <div class="dense-item">🧹 פסח <span>אמא+סבתא</span></div>
+  </div>
+
+  <div class="section-label">לוח שבועי — כל המשימות</div>
+  <table class="compact-table">
+    <tr><th></th><th>א׳</th><th>ב׳</th><th>ג׳</th><th>ד׳</th><th>ה׳</th></tr>
+    <tr><td class="row-label">צהריים</td><td>סבתא</td><td class="highlight">ארז</td><td class="today">—</td><td>חי</td><td>מעיין</td></tr>
+    <tr><td class="row-label">ערב</td><td>אמא</td><td>אמא</td><td class="today">אמא</td><td>אמא</td><td>אמא</td></tr>
+    <tr><td class="row-label">עוזר</td><td>אלון</td><td>מעיין</td><td class="today">אבא</td><td class="highlight">ארז</td><td>חי</td></tr>
+    <tr><td class="row-label">סדר</td><td class="highlight">ארז</td><td>אלון</td><td class="today">מעיין</td><td>אלון</td><td class="highlight">ארז</td></tr>
+  </table>
+
+  <div class="motto">בואו נשאג ביחד על המשימות! כל אחד תורם 🦁</div>
+</div>
+
+<!-- DIRECTION D: Bold & Graphic -->
+<div class="direction dir-d" id="dir-d">
+  <div class="direction-label">
+    <h2>Direction D: Bold & Graphic</h2>
+    <p>Large emojis, visual identity cards, horizontal scroll for tasks. Most engaging.</p>
+  </div>
+
+  <div class="hero">
+    <div class="lion-placeholder lion-lg">🦁</div>
+    <h1>שאגת הארי</h1>
+    <div class="motto">בואו נשאג ביחד על המשימות! כל אחד תורם</div>
+  </div>
+
+  <div class="name-grid">
+    <div class="name-block"><span class="emoji">👨</span><span class="name">אבא</span></div>
+    <div class="name-block"><span class="emoji">👩</span><span class="name">אמא</span></div>
+    <div class="name-block"><span class="emoji">💧</span><span class="name">מעיין</span></div>
+    <div class="name-block"><span class="emoji">⚡</span><span class="name">חי</span></div>
+    <div class="name-block selected"><span class="emoji">🦁</span><span class="name">ארז</span></div>
+    <div class="name-block"><span class="emoji">🌳</span><span class="name">אלון</span></div>
+    <div class="name-block"><span class="emoji">🎶</span><span class="name">עדי</span></div>
+    <div class="name-block"><span class="emoji">👵</span><span class="name">סבתא</span></div>
+  </div>
+
+  <div class="duty-section">
+    <div class="duty-header">📋 משימות קבועות</div>
+    <div class="duty-strip">
+      <div class="duty-card"><div class="task-emoji">🍽️</div><div class="task-name">הכנסת מדיח</div><div class="task-owner">👨 אבא</div></div>
+      <div class="duty-card highlight"><div class="task-emoji">🍽️</div><div class="task-name">פריקת מדיח</div><div class="task-owner">🦁 ארז</div></div>
+      <div class="duty-card"><div class="task-emoji">🗑️</div><div class="task-name">פחים</div><div class="task-owner">🌳 אלון</div></div>
+      <div class="duty-card"><div class="task-emoji">👕</div><div class="task-name">כביסות</div><div class="task-owner">💧 מעיין</div></div>
+      <div class="duty-card"><div class="task-emoji">🚗</div><div class="task-name">סידורים</div><div class="task-owner">⚡ חי</div></div>
+      <div class="duty-card"><div class="task-emoji">🎭</div><div class="task-name">הווי ובידור</div><div class="task-owner">🎶 עדי</div></div>
+      <div class="duty-card"><div class="task-emoji">🧹</div><div class="task-name">נקיונות לפסח</div><div class="task-owner">👩+👵</div></div>
+    </div>
+  </div>
+
+  <div class="duty-section">
+    <div class="duty-header">📅 לוח שבועי</div>
+
+    <div class="schedule-block">
+      <div class="label">🍽️ ארוחת צהריים</div>
+      <div class="day-pills">
+        <div class="day-pill"><div class="day-name">א׳</div><div class="day-person">סבתא</div></div>
+        <div class="day-pill highlight"><div class="day-name">ב׳</div><div class="day-person">ארז</div></div>
+        <div class="day-pill today"><div class="day-name">ג׳</div><div class="day-person">—</div></div>
+        <div class="day-pill"><div class="day-name">ד׳</div><div class="day-person">חי</div></div>
+        <div class="day-pill"><div class="day-name">ה׳</div><div class="day-person">מעיין</div></div>
+      </div>
+    </div>
+
+    <div class="schedule-block">
+      <div class="label">🤝 עוזר לאמא</div>
+      <div class="day-pills">
+        <div class="day-pill"><div class="day-name">א׳</div><div class="day-person">אלון</div></div>
+        <div class="day-pill"><div class="day-name">ב׳</div><div class="day-person">מעיין</div></div>
+        <div class="day-pill today"><div class="day-name">ג׳</div><div class="day-person">אבא</div></div>
+        <div class="day-pill highlight"><div class="day-name">ד׳</div><div class="day-person">ארז</div></div>
+        <div class="day-pill"><div class="day-name">ה׳</div><div class="day-person">חי</div></div>
+      </div>
+    </div>
+
+    <div class="schedule-block">
+      <div class="label">🧹 סדר + שולחן</div>
+      <div class="day-pills">
+        <div class="day-pill highlight"><div class="day-name">א׳</div><div class="day-person">ארז</div></div>
+        <div class="day-pill"><div class="day-name">ב׳</div><div class="day-person">אלון</div></div>
+        <div class="day-pill today"><div class="day-name">ג׳</div><div class="day-person">מעיין</div></div>
+        <div class="day-pill"><div class="day-name">ד׳</div><div class="day-person">אלון</div></div>
+        <div class="day-pill highlight"><div class="day-name">ה׳</div><div class="day-person">ארז</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON VIEW -->
+<div class="comparison" id="dir-compare">
+  <h2>Direction Comparison</h2>
+  <div class="compare-grid">
+    <div class="compare-item">
+      <h3>A: Table Classic</h3>
+      <div class="traits">
+        <div class="trait"><span class="label">Layout</span><span class="value">Traditional tables</span></div>
+        <div class="trait"><span class="label">Feel</span><span class="value">Familiar, paper-chart</span></div>
+        <div class="trait"><span class="label">Density</span><span class="value">Medium</span></div>
+        <div class="trait"><span class="label">Scrolling</span><span class="value">Moderate</span></div>
+        <div class="trait"><span class="label">Mobile fit</span><span class="value">Good (compact cells)</span></div>
+        <div class="trait"><span class="label">Highlight clarity</span><span class="value">Very strong</span></div>
+        <div class="trait"><span class="label">Best for</span><span class="value">Scannable, no learning curve</span></div>
+      </div>
+    </div>
+    <div class="compare-item">
+      <h3>B: Card Modern</h3>
+      <div class="traits">
+        <div class="trait"><span class="label">Layout</span><span class="value">Cards per section</span></div>
+        <div class="trait"><span class="label">Feel</span><span class="value">Modern, polished</span></div>
+        <div class="trait"><span class="label">Density</span><span class="value">Low (airy)</span></div>
+        <div class="trait"><span class="label">Scrolling</span><span class="value">More scrolling</span></div>
+        <div class="trait"><span class="label">Mobile fit</span><span class="value">Excellent</span></div>
+        <div class="trait"><span class="label">Highlight clarity</span><span class="value">Strong</span></div>
+        <div class="trait"><span class="label">Best for</span><span class="value">Professional showcase</span></div>
+      </div>
+    </div>
+    <div class="compare-item">
+      <h3>C: Compact</h3>
+      <div class="traits">
+        <div class="trait"><span class="label">Layout</span><span class="value">Dense grid + table</span></div>
+        <div class="trait"><span class="label">Feel</span><span class="value">Efficient, dashboard</span></div>
+        <div class="trait"><span class="label">Density</span><span class="value">High</span></div>
+        <div class="trait"><span class="label">Scrolling</span><span class="value">Minimal</span></div>
+        <div class="trait"><span class="label">Mobile fit</span><span class="value">Tight but works</span></div>
+        <div class="trait"><span class="label">Highlight clarity</span><span class="value">Good</span></div>
+        <div class="trait"><span class="label">Best for</span><span class="value">Everything above the fold</span></div>
+      </div>
+    </div>
+    <div class="compare-item">
+      <h3>D: Bold Graphic</h3>
+      <div class="traits">
+        <div class="trait"><span class="label">Layout</span><span class="value">Visual cards + pills</span></div>
+        <div class="trait"><span class="label">Feel</span><span class="value">Fun, engaging, app-like</span></div>
+        <div class="trait"><span class="label">Density</span><span class="value">Low-medium</span></div>
+        <div class="trait"><span class="label">Scrolling</span><span class="value">More scrolling</span></div>
+        <div class="trait"><span class="label">Mobile fit</span><span class="value">Great (native feel)</span></div>
+        <div class="trait"><span class="label">Highlight clarity</span><span class="value">Very strong</span></div>
+        <div class="trait"><span class="label">Best for</span><span class="value">Engagement, delight, kids</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDir(id) {
+  document.querySelectorAll('.direction, .comparison').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-buttons button').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById('dir-' + id);
+  if (target) target.classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

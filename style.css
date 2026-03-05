@@ -1,0 +1,141 @@
+/* ==============================
+   Design Tokens — Light Mode
+   ============================== */
+:root {
+  --color-primary: #1A4B8C;
+  --color-primary-light: #E3F0FF;
+  --color-background: #FFFFFF;
+  --color-surface: #F0F4F8;
+  --color-text: #1A1A2E;
+  --color-text-secondary: #5A6A7A;
+  --color-highlight: #FFF3CD;
+  --color-highlight-border: #E6C85A;
+  --color-border: #D0D8E0;
+  --color-header-gradient-start: #1A4B8C;
+  --color-header-gradient-end: #2E6BC6;
+}
+
+/* ==============================
+   Design Tokens — Dark Mode
+   ============================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #4A90D9;
+    --color-primary-light: #1A2A44;
+    --color-background: #1A1A2E;
+    --color-surface: #252540;
+    --color-text: #E8ECF0;
+    --color-text-secondary: #8A9AAA;
+    --color-highlight: #3D3520;
+    --color-highlight-border: #8A7A30;
+    --color-border: #3A3A5A;
+    --color-header-gradient-start: #1A3A6C;
+    --color-header-gradient-end: #4A90D9;
+  }
+}
+
+/* ==============================
+   Base & Reset
+   ============================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+/* ==============================
+   Header
+   ============================== */
+.app-header {
+  background: linear-gradient(135deg, var(--color-header-gradient-start), var(--color-header-gradient-end));
+  color: #FFFFFF;
+  text-align: center;
+  padding: 32px 16px 24px;
+}
+
+.header-logo {
+  display: block;
+  margin: 0 auto 16px;
+  max-width: 130px;
+  border-radius: 50%;
+}
+
+.app-header h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.header-motto {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* ==============================
+   Main Content
+   ============================== */
+.app-content {
+  width: 100%;
+  padding: 24px 16px;
+}
+
+.section-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.section-card h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+/* ==============================
+   Footer
+   ============================== */
+.app-footer {
+  text-align: center;
+  padding: 16px 16px 24px;
+}
+
+.app-footer p {
+  margin: 0;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* ==============================
+   Responsive — Desktop
+   ============================== */
+@media (min-width: 600px) {
+  .app-content {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 24px;
+  }
+
+  .app-footer {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
