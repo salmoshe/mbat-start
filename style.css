@@ -110,6 +110,48 @@ body {
 }
 
 /* ==============================
+   Fixed Task Rows
+   ============================== */
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.task-row:last-child {
+  border-bottom: none;
+}
+
+.task-emoji {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.task-name {
+  font-size: 15px;
+  font-weight: 400;
+  flex: 1;
+}
+
+.owner-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.owner-emoji {
+  font-size: 16px;
+}
+
+.owner-name {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ==============================
    Footer
    ============================== */
 .app-footer {
