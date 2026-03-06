@@ -19,18 +19,19 @@ function loadJSON(name) {
 describe('Task 1.1 — familyMembers data', () => {
   const data = loadJSON('data.json');
 
-  it('has 8 family members', () => {
-    assert.equal(data.familyMembers.length, 8);
+  it('has 9 family members', () => {
+    assert.equal(data.familyMembers.length, 9);
   });
 
   const expectedMembers = [
     { name: 'אבא', emoji: '👨' },
     { name: 'אמא', emoji: '👩' },
-    { name: 'מעיין', emoji: '🌊' },
-    { name: 'חי', emoji: '🌟' },
+    { name: 'מעיין', emoji: '💧' },
+    { name: 'חי', emoji: '⚡' },
     { name: 'ארז', emoji: '🦁' },
     { name: 'אלון', emoji: '🌳' },
-    { name: 'עדי', emoji: '🎨' },
+    { name: 'מודי', emoji: '🎮' },
+    { name: 'עדי', emoji: '🎶' },
     { name: 'סבתא', emoji: '👵' },
   ];
 
@@ -127,10 +128,10 @@ describe('Task 1.3 — weeklySchedule data', () => {
   });
 
   const expectedLabels = [
-    'ארוחת צהריים',
-    'ארוחת ערב',
+    'אחראי ארוחת צהריים',
+    'אחראי ארוחת ערב',
     'עוזר לאמא בארוחת ערב',
-    'סדר קומת כניסה + אמבטיות + עריכת שולחן',
+    'אחראי סדר קומת כניסה ואמבטיות + עריכת שולחן צהריים וערב',
   ];
 
   for (const label of expectedLabels) {
@@ -141,13 +142,13 @@ describe('Task 1.3 — weeklySchedule data', () => {
     });
   }
 
-  it('ארוחת צהריים has correct assignments', () => {
-    const rot = ws.rotations.find(r => r.label === 'ארוחת צהריים');
-    assert.deepEqual(rot.assignments, ['מעיין', 'ארז', 'אלון', 'סבתא', 'חי']);
+  it('אחראי ארוחת צהריים has correct assignments', () => {
+    const rot = ws.rotations.find(r => r.label === 'אחראי ארוחת צהריים');
+    assert.deepEqual(rot.assignments, ['סבתא', 'ארז', '—', 'חי', 'מעיין']);
   });
 
-  it('ארוחת ערב is all אמא', () => {
-    const rot = ws.rotations.find(r => r.label === 'ארוחת ערב');
+  it('אחראי ארוחת ערב is all אמא', () => {
+    const rot = ws.rotations.find(r => r.label === 'אחראי ארוחת ערב');
     assert.ok(rot.assignments.every(a => a === 'אמא'));
   });
 });

@@ -196,12 +196,12 @@ describe('Task 4 — Weekly schedule data cross-check', () => {
   const data = loadJSON('data.json');
   const ws = data.weeklySchedule;
 
-  it('all rotation assignments reference valid family members', () => {
+  it('all rotation assignments reference valid family members or empty marker', () => {
     const memberNames = data.familyMembers.map(m => m.name);
     for (const rotation of ws.rotations) {
-      for (const member of rotation.assignments) {
-        assert.ok(memberNames.includes(member),
-          `"${member}" in rotation "${rotation.label}" is not a valid family member`);
+      for (const assignment of rotation.assignments) {
+        assert.ok(memberNames.includes(assignment) || assignment === '—',
+          `"${assignment}" in rotation "${rotation.label}" is not a valid family member or empty marker`);
       }
     }
   });
