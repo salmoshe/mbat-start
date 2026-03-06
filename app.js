@@ -171,6 +171,8 @@ function handleNameClick(event) {
   } catch (e) {
     // Silent fail — localStorage unavailable
   }
+
+  highlightMember(chipEl.getAttribute('data-member'));
 }
 
 function restoreSavedMember() {
@@ -200,15 +202,40 @@ function restoreSavedMember() {
   if (selectorPromptEl) {
     selectorPromptEl.classList.add('hidden');
   }
+
+  highlightMember(savedName);
 }
 
 // ==============================
 // 5. HIGHLIGHTING
 // ==============================
+function highlightMember(memberName) {
+  const allElements = document.querySelectorAll('[data-member]');
+  allElements.forEach(el => {
+    el.classList.remove('highlighted');
+  });
+
+  if (!memberName) return;
+
+  allElements.forEach(el => {
+    if (el.getAttribute('data-member') === memberName) {
+      el.classList.add('highlighted');
+    }
+  });
+}
 
 // ==============================
 // 6. TODAY DETECTION
 // ==============================
+function detectToday() {
+  const day = new Date().getDay();
+  if (day >= 5) return;
+
+  const todayElements = document.querySelectorAll('[data-day="' + day + '"]');
+  todayElements.forEach(el => {
+    el.classList.add('today');
+  });
+}
 
 // ==============================
 // 7. INITIALIZATION
@@ -231,6 +258,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderWeeklySchedule(data);
 
   restoreSavedMember();
+  detectToday();
 
   const nameSelectorEl = document.querySelector('.name-selector');
   if (nameSelectorEl) {

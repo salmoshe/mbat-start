@@ -158,6 +158,29 @@ body {
 }
 
 /* ==============================
+   Highlighting & Today
+   ============================== */
+.schedule-table td.today,
+.schedule-table th.today {
+  background-color: var(--color-primary-light);
+}
+
+.schedule-table th.today {
+  color: var(--color-text);
+}
+
+.task-row.highlighted {
+  background-color: var(--color-highlight);
+  font-weight: bold;
+  border-inline-start: 3px solid var(--color-highlight-border);
+}
+
+.schedule-table td.highlighted {
+  background-color: var(--color-highlight);
+  font-weight: bold;
+}
+
+/* ==============================
    Fixed Task Rows
    ============================== */
 .task-row {
